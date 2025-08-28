@@ -12,7 +12,6 @@ localPort = 5000
 externalPort = 80
 
 [workflows]
-runButton = "Start NoteSwift"
 
 [[workflows.workflow]]
 name = "Start NoteSwift"
