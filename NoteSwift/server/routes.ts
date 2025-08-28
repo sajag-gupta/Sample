@@ -64,27 +64,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Invalid or expired verification code" });
       }
 
-      // Mark OTP as used
-      await storage.markOTPAsUsed(otpRecord.id);
+      // Mark OTP as used and create user (email verification complete)
+      await storage.markOTPAsUsed(otpRecord._id);
 
-      // Create user (no password needed)
-      const user = await storage.createUser({
+      const newUser = await storage.createUser({
         name: tempData.name,
         dateOfBirth: tempData.dateOfBirth,
         email: tempData.email,
         isEmailVerified: "true"
       });
 
-      // Generate JWT
-      const token = generateToken({ userId: user.id, email: user.email });
+      const token = generateToken({ 
+        userId: newUser._id.toString(), 
+        email: newUser.email 
+      });
 
       res.json({
         message: "Email verified successfully",
         token,
         user: {
-          id: user.id,
-          name: user.name,
-          email: user.email
+          id: newUser._id.toString(),
+          name: newUser.name,
+          email: newUser.email
         }
       });
     } catch (error: any) {
@@ -145,7 +146,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Mark OTP as used
-      await storage.markOTPAsUsed(otpRecord.id);
+      await storage.markOTPAsUsed(otpRecord._id);
 
       // Get user
       const user = await storage.getUserByEmail(validatedOTP.email);
@@ -154,13 +155,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Generate JWT
-      const token = generateToken({ userId: user.id, email: user.email });
+      const token = generateToken({ 
+        userId: user._id.toString(), 
+        email: user.email 
+      });
 
       res.json({
         message: "Login successful",
         token,
         user: {
-          id: user.id,
+          id: user._id.toString(),
           name: user.name,
           email: user.email
         }
@@ -215,7 +219,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Check if user exists
       let user = await storage.getUserByEmail(googleUser.email);
-      
+
       if (!user) {
         // Create new user
         user = await storage.createUser({
@@ -227,17 +231,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       } else if (!user.googleId) {
         // Link Google account to existing user
-        user = await storage.updateUser(user.id, { googleId: googleUser.id });
+        user = await storage.updateUser(user._id.toString(), { googleId: googleUser.id });
       }
 
       // Generate JWT
-      const jwtToken = generateToken({ userId: user.id, email: user.email });
+      const jwtToken = generateToken({ userId: user._id.toString(), email: user.email });
 
       res.json({
         message: "Google authentication successful",
         token: jwtToken,
         user: {
-          id: user.id,
+          id: user._id.toString(),
           name: user.name,
           email: user.email
         }
@@ -260,7 +264,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Check if user exists
       let user = await storage.getUserByEmail(googleUser.email);
-      
+
       if (!user) {
         // Create new user
         user = await storage.createUser({
@@ -272,11 +276,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       } else if (!user.googleId) {
         // Link Google account to existing user
-        user = await storage.updateUser(user.id, { googleId: googleUser.id });
+        user = await storage.updateUser(user._id.toString(), { googleId: googleUser.id });
       }
 
       // Generate JWT
-      const token = generateToken({ userId: user.id, email: user.email });
+      const token = generateToken({ userId: user._id.toString(), email: user.email });
 
       // Redirect to frontend with token
       res.redirect(`/?token=${token}`);
@@ -295,7 +299,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       res.json({
-        id: user.id,
+        id: user._id.toString(),
         name: user.name,
         email: user.email
       });
@@ -334,9 +338,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { id } = req.params;
       const validatedData = updateNoteSchema.parse(req.body);
-      
+
       const updatedNote = await storage.updateNote(id, req.user!.userId, validatedData);
-      
+
       if (!updatedNote) {
         return res.status(404).json({ message: "Note not found" });
       }
@@ -355,7 +359,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { id } = req.params;
       const deleted = await storage.deleteNote(id, req.user!.userId);
-      
+
       if (!deleted) {
         return res.status(404).json({ message: "Note not found" });
       }

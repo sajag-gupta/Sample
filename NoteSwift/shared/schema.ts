@@ -1,43 +1,58 @@
-import { sql } from "drizzle-orm";
-import { pgTable, text, varchar, timestamp, uuid } from "drizzle-orm/pg-core";
-import { createInsertSchema } from "drizzle-zod";
-import { z } from "zod";
 
-export const users = pgTable("users", {
-  id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
-  email: varchar("email", { length: 255 }).notNull().unique(),
-  name: varchar("name", { length: 255 }).notNull(),
-  dateOfBirth: varchar("date_of_birth", { length: 10 }).notNull(),
-  password: text("password"), // nullable for Google OAuth users
-  isEmailVerified: varchar("is_email_verified", { length: 10 }).notNull().default("false"),
-  googleId: varchar("google_id", { length: 255 }),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
+import mongoose from 'mongoose';
+import { z } from 'zod';
+
+// User Schema
+const userSchema = new mongoose.Schema({
+  email: { type: String, required: true, unique: true, maxlength: 255 },
+  name: { type: String, required: true, maxlength: 255 },
+  dateOfBirth: { type: String, required: true, maxlength: 10 },
+  password: { type: String, required: false }, // nullable for Google OAuth users
+  isEmailVerified: { type: String, required: true, default: "false", maxlength: 10 },
+  googleId: { type: String, maxlength: 255 },
+}, {
+  timestamps: true // This adds createdAt and updatedAt automatically
 });
 
-export const notes = pgTable("notes", {
-  id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
-  title: varchar("title", { length: 255 }).notNull(),
-  content: text("content").notNull(),
-  userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
+// Notes Schema
+const noteSchema = new mongoose.Schema({
+  title: { type: String, required: true, maxlength: 255 },
+  content: { type: String, required: true },
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+}, {
+  timestamps: true
 });
 
-export const otpCodes = pgTable("otp_codes", {
-  id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
-  email: varchar("email", { length: 255 }).notNull(),
-  code: varchar("code", { length: 6 }).notNull(),
-  expiresAt: timestamp("expires_at").notNull(),
-  isUsed: varchar("is_used", { length: 10 }).notNull().default("false"),
-  createdAt: timestamp("created_at").defaultNow(),
+// OTP Codes Schema
+const otpCodeSchema = new mongoose.Schema({
+  email: { type: String, required: true, maxlength: 255 },
+  code: { type: String, required: true, maxlength: 6 },
+  expiresAt: { type: Date, required: true },
+  isUsed: { type: String, required: true, default: "false", maxlength: 10 },
+}, {
+  timestamps: true
 });
 
-// Insert schemas
-export const insertUserSchema = createInsertSchema(users).omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true,
+// Create indexes for better performance
+userSchema.index({ email: 1 });
+userSchema.index({ googleId: 1 });
+noteSchema.index({ userId: 1, createdAt: -1 });
+otpCodeSchema.index({ email: 1, code: 1 });
+otpCodeSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 }); // TTL index
+
+// Export models
+export const User = mongoose.model('User', userSchema);
+export const Note = mongoose.model('Note', noteSchema);
+export const OTPCode = mongoose.model('OTPCode', otpCodeSchema);
+
+// Validation schemas (keeping the same as before)
+export const insertUserSchema = z.object({
+  email: z.string().email(),
+  name: z.string(),
+  dateOfBirth: z.string(),
+  password: z.string().optional(),
+  isEmailVerified: z.string().optional(),
+  googleId: z.string().optional(),
 });
 
 export const loginSchema = z.object({
@@ -63,9 +78,9 @@ export const otpVerificationSchema = z.object({
   code: z.string().length(6, "Code must be 6 digits"),
 });
 
-export const insertNoteSchema = createInsertSchema(notes).pick({
-  title: true,
-  content: true,
+export const insertNoteSchema = z.object({
+  title: z.string(),
+  content: z.string(),
 });
 
 export const createNoteSchema = z.object({
@@ -81,11 +96,39 @@ export const updateNoteSchema = z.object({
 });
 
 // Types
-export type User = typeof users.$inferSelect;
+export type UserType = {
+  _id: string;
+  email: string;
+  name: string;
+  dateOfBirth: string;
+  password?: string;
+  isEmailVerified: string;
+  googleId?: string;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
+export type NoteType = {
+  _id: string;
+  title: string;
+  content: string;
+  userId: string;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
+export type OTPCodeType = {
+  _id: string;
+  email: string;
+  code: string;
+  expiresAt: Date;
+  isUsed: string;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
 export type InsertUser = z.infer<typeof insertUserSchema>;
-export type Note = typeof notes.$inferSelect;
 export type InsertNote = z.infer<typeof insertNoteSchema>;
-export type OTPCode = typeof otpCodes.$inferSelect;
 export type LoginData = z.infer<typeof loginSchema>;
 export type SignupData = z.infer<typeof signupSchema>;
 export type OTPVerificationData = z.infer<typeof otpVerificationSchema>;

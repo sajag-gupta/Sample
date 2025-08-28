@@ -1,6 +1,7 @@
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import { Request, Response, NextFunction } from "express";
+import mongoose from "mongoose";
 
 export interface JWTPayload {
   userId: string;
