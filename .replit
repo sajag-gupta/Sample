@@ -1,0 +1,12 @@
+modules = ["nodejs-20", "web"]
+run = "cd NoteSwift && npm install && npm run dev"
+
+[nix]
+channel = "stable-25_05"
+
+[deployment]
+run = ["sh", "-c", "cd NoteSwift && npm install && npm run dev"]
+
+[[ports]]
+localPort = 5000
+externalPort = 80
