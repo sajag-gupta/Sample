@@ -91,7 +91,11 @@ export class DatabaseStorage implements IStorage {
     try {
       const note = new Note({ ...noteData, userId });
       const savedNote = await note.save();
-      return savedNote.toObject();
+      const noteObject = savedNote.toObject();
+      return {
+        ...noteObject,
+        id: noteObject._id.toString()
+      };
     } catch (error) {
       console.error('Error creating note:', error);
       throw error;
@@ -100,9 +104,14 @@ export class DatabaseStorage implements IStorage {
 
   async getNotesByUserId(userId: string): Promise<NoteType[]> {
     try {
-      return await Note.find({ userId })
+      const notes = await Note.find({ userId })
         .sort({ createdAt: -1 })
         .lean();
+      
+      return notes.map(note => ({
+        ...note,
+        id: note._id.toString()
+      }));
     } catch (error) {
       console.error('Error getting notes by user ID:', error);
       return [];
@@ -111,11 +120,18 @@ export class DatabaseStorage implements IStorage {
 
   async updateNote(id: string, userId: string, updates: UpdateNoteData): Promise<NoteType | null> {
     try {
-      return await Note.findOneAndUpdate(
+      const updatedNote = await Note.findOneAndUpdate(
         { _id: id, userId },
         { ...updates, updatedAt: new Date() },
         { new: true }
       ).lean();
+      
+      if (!updatedNote) return null;
+      
+      return {
+        ...updatedNote,
+        id: updatedNote._id.toString()
+      };
     } catch (error) {
       console.error('Error updating note:', error);
       return null;

@@ -7,7 +7,7 @@ import { CreateNoteForm } from "@/components/notes/CreateNoteForm";
 import { NoteCard } from "@/components/notes/NoteCard";
 import { getAuthHeader, handleAuthError } from "@/lib/authUtils";
 import type { Note } from "@shared/schema";
-import logoUrl from "@assets/logo_1756406310995.png";
+import logoUrl from "@/attached_assets/logo_1756406310995.png";
 
 export default function DashboardPage() {
   const { user, token, logout } = useAuth();
@@ -35,6 +35,8 @@ export default function DashboardPage() {
       title: "Logged out",
       description: "You have been successfully logged out.",
     });
+    // Force immediate redirect to auth page
+    window.location.href = '/';
   };
 
   const getUserInitials = (name: string) => {
@@ -132,7 +134,7 @@ export default function DashboardPage() {
           ) : notes.length > 0 ? (
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3" data-testid="notes-grid">
               {notes.map((note: Note) => (
-                <NoteCard key={note.id} note={note} />
+                <NoteCard key={note.id || note._id} note={note} />
               ))}
             </div>
           ) : (

@@ -45,10 +45,7 @@ export function OTPForm({ email, tempData, isLogin = false, onBackToSignup, onBa
         title: isLogin ? "Welcome back!" : "Account created successfully!",
         description: isLogin ? "You have been successfully logged in." : "Welcome to NoteTaker!",
       });
-      // Force a small delay to ensure auth state is updated before redirect
-      setTimeout(() => {
-        window.location.reload();
-      }, 100);
+      // The login() call above will trigger redirect automatically via useAuth hook
     },
     onError: (error: any) => {
       toast({
