@@ -9,7 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { loginSchema, type LoginData } from "@shared/schema";
 import { useAuth } from "@/hooks/useAuth";
 import { apiRequest } from "@/lib/queryClient";
-import logoUrl from "@assets/logo_1756406310995.png";
+import logoUrl from "../../../../attached_assets/logo_1756406310995.png";
 
 interface LoginFormProps {
   onSwitchToSignup: () => void;

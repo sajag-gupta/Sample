@@ -7,7 +7,7 @@ import { CreateNoteForm } from "@/components/notes/CreateNoteForm";
 import { NoteCard } from "@/components/notes/NoteCard";
 import { getAuthHeader, handleAuthError } from "@/lib/authUtils";
 import type { Note } from "@shared/schema";
-import logoUrl from "@/attached_assets/logo_1756406310995.png";
+import logoUrl from "../../../attached_assets/logo_1756406310995.png";
 
 export default function DashboardPage() {
   const { user, token, logout } = useAuth();

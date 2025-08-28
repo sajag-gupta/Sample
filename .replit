@@ -10,3 +10,23 @@ run = ["sh", "-c", "cd NoteSwift && npm install && npm run dev"]
 [[ports]]
 localPort = 5000
 externalPort = 80
+
+[workflows]
+runButton = "Start NoteSwift"
+
+[[workflows.workflow]]
+name = "Start NoteSwift"
+author = 47000301
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd NoteSwift"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm install"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run dev"

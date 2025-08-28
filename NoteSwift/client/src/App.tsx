@@ -11,6 +11,7 @@ import NotFound from "@/pages/not-found";
 function Router() {
   const { isAuthenticated, isLoading } = useAuth();
 
+  // Show loading state while auth is being determined
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -21,13 +22,9 @@ function Router() {
 
   return (
     <Switch>
-      {!isAuthenticated ? (
-        <Route path="/" component={AuthPage} />
-      ) : (
-        <>
-          <Route path="/" component={DashboardPage} />
-        </>
-      )}
+      <Route path="/">
+        {isAuthenticated ? <DashboardPage /> : <AuthPage />}
+      </Route>
       <Route component={NotFound} />
     </Switch>
   );
