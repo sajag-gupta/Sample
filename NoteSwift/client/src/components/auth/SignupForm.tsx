@@ -11,7 +11,7 @@ import logoUrl from "@assets/logo_1756406310995.png";
 
 interface SignupFormProps {
   onSwitchToLogin: () => void;
-  onSwitchToOTP: (email: string, tempData: any) => void;
+  onSwitchToOTP: (email: string, tempData: any, isLogin?: boolean) => void; // Added isLogin parameter
 }
 
 export function SignupForm({ onSwitchToLogin, onSwitchToOTP }: SignupFormProps) {
@@ -32,11 +32,12 @@ export function SignupForm({ onSwitchToLogin, onSwitchToOTP }: SignupFormProps) 
       return response.json();
     },
     onSuccess: (data) => {
-      onSwitchToOTP(data.email, data.tempData);
       toast({
         title: "Verification code sent",
-        description: "Please check your email for the verification code.",
+        description: "Please check your email and enter the verification code.",
       });
+      // Switch to OTP verification form for signup
+      onSwitchToOTP(data.email, data.tempData, false);
     },
     onError: (error: any) => {
       toast({
@@ -51,7 +52,7 @@ export function SignupForm({ onSwitchToLogin, onSwitchToOTP }: SignupFormProps) 
     try {
       // Load Google Sign-In API
       await loadGoogleSignInAPI();
-      
+
       // Initialize and sign in
       const auth2 = gapi.auth2.getAuthInstance();
       const user = await auth2.signIn();
@@ -61,7 +62,7 @@ export function SignupForm({ onSwitchToLogin, onSwitchToOTP }: SignupFormProps) 
       const response = await apiRequest("POST", "/api/auth/google", { token: idToken });
       const data = await response.json();
 
-      // Since this is signup, we'll redirect to dashboard automatically
+      // Redirect to dashboard automatically after Google signup
       window.location.href = `/?token=${data.token}`;
     } catch (error: any) {
       console.error("Google signup error:", error);

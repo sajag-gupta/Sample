@@ -45,6 +45,8 @@ export function OTPForm({ email, tempData, isLogin = false, onBackToSignup, onBa
         title: isLogin ? "Welcome back!" : "Account created successfully!",
         description: isLogin ? "You have been successfully logged in." : "Welcome to NoteTaker!",
       });
+      // For both login and signup, user should be redirected to dashboard
+      // The login() call above will trigger this automatically via useAuth hook
     },
     onError: (error: any) => {
       toast({

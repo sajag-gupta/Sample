@@ -34,11 +34,12 @@ export function LoginForm({ onSwitchToSignup, onSwitchToOTP }: LoginFormProps) {
       return response.json();
     },
     onSuccess: (data) => {
-      onSwitchToOTP(data.email, true);
       toast({
         title: "Verification code sent",
-        description: "Please check your email for the verification code.",
+        description: "Please check your email and enter the verification code to sign in.",
       });
+      // Switch to OTP verification for login
+      onSwitchToOTP(data.email, undefined, true);
     },
     onError: (error: any) => {
       toast({
@@ -54,7 +55,7 @@ export function LoginForm({ onSwitchToSignup, onSwitchToOTP }: LoginFormProps) {
     try {
       // Load Google Sign-In API
       await loadGoogleSignInAPI();
-      
+
       // Initialize and sign in
       const auth2 = gapi.auth2.getAuthInstance();
       const user = await auth2.signIn();
