@@ -41,7 +41,3 @@ export async function sendOTPEmail(email: string, otpCode: string): Promise<void
     throw new Error("Failed to send verification email");
   }
 }
-
-export function generateOTP(): string {
-  return Math.floor(100000 + Math.random() * 900000).toString();
-}
