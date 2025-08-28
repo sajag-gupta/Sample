@@ -34,7 +34,6 @@ const otpCodeSchema = new mongoose.Schema({
 });
 
 // Create indexes for better performance
-userSchema.index({ email: 1 });
 userSchema.index({ googleId: 1 });
 noteSchema.index({ userId: 1, createdAt: -1 });
 otpCodeSchema.index({ email: 1, code: 1 });
