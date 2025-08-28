@@ -1,4 +1,5 @@
-import { useQuery } from "@tanstack/react-query";
+
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
 
 export interface User {
@@ -8,6 +9,7 @@ export interface User {
 }
 
 export function useAuth() {
+  const queryClient = useQueryClient();
   const [token, setToken] = useState<string | null>(() => {
     if (typeof window !== "undefined") {
       return localStorage.getItem("auth_token");
@@ -45,11 +47,14 @@ export function useAuth() {
   const login = (newToken: string) => {
     localStorage.setItem("auth_token", newToken);
     setToken(newToken);
+    // Invalidate and refetch user data immediately to update authentication state
+    queryClient.invalidateQueries({ queryKey: ["/api/auth/me"] });
   };
 
   const logout = () => {
     localStorage.removeItem("auth_token");
     setToken(null);
+    queryClient.invalidateQueries({ queryKey: ["/api/auth/me"] });
   };
 
   // Check for token in URL (from Google OAuth redirect)

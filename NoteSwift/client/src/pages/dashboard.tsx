@@ -7,6 +7,7 @@ import { CreateNoteForm } from "@/components/notes/CreateNoteForm";
 import { NoteCard } from "@/components/notes/NoteCard";
 import { getAuthHeader, handleAuthError } from "@/lib/authUtils";
 import type { Note } from "@shared/schema";
+import logoUrl from "@assets/logo_1756406310995.png";
 
 export default function DashboardPage() {
   const { user, token, logout } = useAuth();
@@ -60,6 +61,7 @@ export default function DashboardPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center gap-3">
+              <img src={logoUrl} alt="NoteTaker Logo" className="h-8 w-auto" />
               <h1 className="text-xl font-bold text-foreground">NoteTaker</h1>
             </div>
             <div className="flex items-center gap-4">
