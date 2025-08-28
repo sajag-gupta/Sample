@@ -57,7 +57,7 @@ export function LoginForm({ onSwitchToSignup, onSwitchToOTP }: LoginFormProps) {
       await loadGoogleSignInAPI();
 
       // Initialize and sign in
-      const auth2 = gapi.auth2.getAuthInstance();
+      const auth2 = window.gapi.auth2.getAuthInstance();
       const user = await auth2.signIn();
       const idToken = user.getAuthResponse().id_token;
 
@@ -172,7 +172,7 @@ export function LoginForm({ onSwitchToSignup, onSwitchToOTP }: LoginFormProps) {
 // Helper function to load Google Sign-In API
 function loadGoogleSignInAPI(): Promise<void> {
   return new Promise((resolve, reject) => {
-    if (typeof gapi !== "undefined" && gapi.auth2) {
+    if (typeof window.gapi !== "undefined" && window.gapi.auth2) {
       resolve();
       return;
     }
@@ -180,8 +180,8 @@ function loadGoogleSignInAPI(): Promise<void> {
     const script = document.createElement("script");
     script.src = "https://apis.google.com/js/api:client.js";
     script.onload = () => {
-      gapi.load("auth2", () => {
-        gapi.auth2.init({
+      window.gapi.load("auth2", () => {
+        window.gapi.auth2.init({
           client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID || "your-google-client-id",
         }).then(resolve, reject);
       });
@@ -196,5 +196,3 @@ declare global {
     gapi: any;
   }
 }
-
-const gapi = window.gapi;

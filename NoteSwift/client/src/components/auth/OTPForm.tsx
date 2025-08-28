@@ -42,10 +42,13 @@ export function OTPForm({ email, tempData, isLogin = false, onBackToSignup, onBa
     onSuccess: (data) => {
       login(data.token);
       toast({
-        title: isLogin ? "Welcome back!" : "Account created successfully!",
-        description: isLogin ? "You have been successfully logged in." : "Welcome to NoteTaker!",
+        title: "Success!",
+        description: isLogin ? "Welcome back!" : "Account verified successfully!",
       });
-      // The login() call above will trigger redirect automatically via useAuth hook
+      // Force immediate navigation to dashboard
+      setTimeout(() => {
+        window.location.href = '/';
+      }, 500);
     },
     onError: (error: any) => {
       toast({

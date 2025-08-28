@@ -49,6 +49,8 @@ export function useAuth() {
     setToken(newToken);
     // Invalidate and refetch user data immediately to update authentication state
     queryClient.invalidateQueries({ queryKey: ["/api/auth/me"] });
+    // Force immediate refetch to update isAuthenticated state
+    queryClient.refetchQueries({ queryKey: ["/api/auth/me"] });
   };
 
   const logout = () => {
