@@ -58,6 +58,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { email, code, tempData } = req.body;
       const validatedOTP = otpVerificationSchema.parse({ email, code });
 
+      // Validate tempData
+      if (!tempData || !tempData.name || !tempData.dateOfBirth || !tempData.email) {
+        return res.status(400).json({ message: "Missing user data. Please try signing up again." });
+      }
+
       // Verify OTP
       const otpRecord = await storage.getValidOTPCode(validatedOTP.email, validatedOTP.code);
       if (!otpRecord) {
@@ -70,7 +75,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const newUser = await storage.createUser({
         name: tempData.name,
         dateOfBirth: tempData.dateOfBirth,
-        email: tempData.email,
+        email: validatedOTP.email,
         isEmailVerified: "true"
       });
 
